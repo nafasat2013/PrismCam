@@ -1,0 +1,480 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>PrismCam</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+
+        min-height: 100vh;
+
+        font-family: Arial, Helvetica, sans-serif;
+
+        background:
+          radial-gradient(circle at top left, #4c1d95, transparent 35%),
+          radial-gradient(circle at bottom right, #0f766e, transparent 35%),
+          #09090b;
+
+        color: white;
+      }
+
+      .app-container {
+        min-height: 100vh;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        padding: 30px;
+      }
+
+      .camera-card {
+        width: 100%;
+
+        max-width: 750px;
+
+        padding: 40px;
+
+        border-radius: 28px;
+
+        background: rgba(24, 24, 27, 0.9);
+
+        border: 1px solid rgba(255, 255, 255, 0.12);
+
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .app-label {
+        margin-bottom: 8px;
+
+        text-align: center;
+
+        font-size: 12px;
+
+        font-weight: bold;
+
+        letter-spacing: 4px;
+
+        color: #a78bfa;
+      }
+
+      h1 {
+        margin: 0;
+
+        text-align: center;
+
+        font-size: 48px;
+
+        font-weight: 800;
+
+        background: linear-gradient(90deg, #a78bfa, #22d3ee);
+
+        -webkit-background-clip: text;
+
+        background-clip: text;
+
+        color: transparent;
+      }
+
+      .description {
+        margin-top: 12px;
+
+        margin-bottom: 30px;
+
+        text-align: center;
+
+        color: #a1a1aa;
+
+        font-size: 16px;
+      }
+
+      .filter-controls {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        justify-content: center;
+
+        gap: 12px;
+
+        margin-bottom: 25px;
+      }
+
+      .filter-btn,
+      .action-btn {
+        padding: 10px 20px;
+
+        border: 1px solid #3f3f46;
+
+        border-radius: 50px;
+
+        background: #18181b;
+
+        color: white;
+
+        font-size: 15px;
+
+        cursor: pointer;
+
+        transition:
+          transform 0.2s ease,
+          background 0.2s ease,
+          border 0.2s ease;
+      }
+
+      .filter-btn:hover,
+      .action-btn:hover {
+        transform: translateY(-2px);
+
+        border-color: #22d3ee;
+      }
+
+      .filter-btn.active {
+        background: #22d3ee;
+
+        color: #09090b;
+
+        border-color: #22d3ee;
+
+        font-weight: bold;
+      }
+
+      .action-controls {
+        display: flex;
+
+        justify-content: center;
+
+        gap: 12px;
+
+        margin-bottom: 25px;
+      }
+
+      #snapshot-btn {
+        background: #a78bfa;
+
+        border-color: #a78bfa;
+
+        color: #09090b;
+
+        font-weight: bold;
+      }
+
+      #save-btn {
+        background: #22d3ee;
+
+        border-color: #22d3ee;
+
+        color: #09090b;
+
+        font-weight: bold;
+      }
+
+      #save-btn:disabled {
+        opacity: 0.5;
+
+        cursor: not-allowed;
+      }
+
+      .canvas-wrapper {
+        position: relative;
+
+        width: 100%;
+
+        overflow: hidden;
+
+        border-radius: 18px;
+
+        background: #000;
+
+        border: 1px solid #3f3f46;
+      }
+
+      canvas {
+        display: block;
+
+        width: 100%;
+
+        height: auto;
+      }
+
+      #active-filter-badge {
+        position: absolute;
+
+        top: 15px;
+
+        left: 15px;
+
+        padding: 8px 15px;
+
+        border-radius: 50px;
+
+        background: rgba(0, 0, 0, 0.7);
+
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        font-size: 14px;
+
+        font-weight: bold;
+
+        backdrop-filter: blur(10px);
+      }
+
+      .snapshot-section {
+        margin-top: 25px;
+
+        display: none;
+
+        text-align: center;
+      }
+
+      .snapshot-section h2 {
+        font-size: 20px;
+
+        margin-bottom: 15px;
+
+        color: #22d3ee;
+      }
+
+      #snapshot-image {
+        max-width: 100%;
+
+        border-radius: 18px;
+
+        border: 1px solid #3f3f46;
+
+        display: block;
+
+        margin: 0 auto;
+      }
+
+      @media (max-width: 600px) {
+        .app-container {
+          padding: 15px;
+        }
+
+        .camera-card {
+          padding: 25px;
+        }
+
+        h1 {
+          font-size: 38px;
+        }
+
+        .filter-btn,
+        .action-btn {
+          padding: 9px 15px;
+
+          font-size: 14px;
+        }
+
+        .action-controls {
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+    ```
+  </head>
+
+  <body>
+    ```
+    <main class="app-container">
+      <div class="camera-card">
+        <p class="app-label">LIVE CAMERA</p>
+
+        <h1>PrismCam</h1>
+
+        <p class="description">
+          Choose a filter to instantly change your live camera view.
+        </p>
+
+        <!-- FILTER BUTTONS -->
+
+        <div class="filter-controls">
+          <button class="filter-btn active" data-filter="none">Original</button>
+
+          <button class="filter-btn" data-filter="invert">Inverted</button>
+
+          <button class="filter-btn" data-filter="warm">Warm</button>
+
+          <button class="filter-btn" data-filter="cool">Cool</button>
+
+          <button class="filter-btn" data-filter="contrast">
+            High Contrast
+          </button>
+        </div>
+
+        <!-- SNAPSHOT AND SAVE BUTTONS -->
+
+        <div class="action-controls">
+          <button class="action-btn" id="snapshot-btn">Take My Snapshot</button>
+
+          <button class="action-btn" id="save-btn" disabled>Save</button>
+        </div>
+
+        <!-- LIVE CAMERA -->
+
+        <div class="canvas-wrapper">
+          <canvas id="canvas"></canvas>
+
+          <div id="active-filter-badge">Original</div>
+        </div>
+
+        <!-- CAPTURED SNAPSHOT -->
+
+        <div class="snapshot-section" id="snapshot-section">
+          <h2>Your Snapshot</h2>
+
+          <img id="snapshot-image" alt="Captured snapshot" />
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+
+        const activeFilterBadge = document.getElementById(
+          "active-filter-badge",
+        );
+
+        const canvas = document.getElementById("canvas");
+
+        const ctx = canvas.getContext("2d");
+
+        const snapshotButton = document.getElementById("snapshot-btn");
+
+        const saveButton = document.getElementById("save-btn");
+
+        const snapshotImage = document.getElementById("snapshot-image");
+
+        const snapshotSection = document.getElementById("snapshot-section");
+
+        let capturedImage = null;
+
+        const filters = {
+          none: "none",
+
+          invert: "invert(1)",
+
+          warm: "sepia(0.45) saturate(1.3)",
+
+          cool: "hue-rotate(180deg) saturate(1.1)",
+
+          contrast: "contrast(1.7)",
+        };
+
+        let currentFilterStyle = filters.none;
+
+        /* FILTER BUTTONS */
+
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            filterButtons.forEach((btn) => {
+              btn.classList.remove("active");
+            });
+
+            button.classList.add("active");
+
+            const filterKey = button.getAttribute("data-filter");
+
+            currentFilterStyle = filters[filterKey] || filters.none;
+
+            activeFilterBadge.textContent = button.textContent.trim();
+          });
+        });
+
+        /* TAKE SNAPSHOT */
+
+        snapshotButton.addEventListener("click", () => {
+          capturedImage = canvas.toDataURL("image/png");
+
+          snapshotImage.src = capturedImage;
+
+          snapshotSection.style.display = "block";
+
+          saveButton.disabled = false;
+        });
+
+        /* SAVE SNAPSHOT */
+
+        saveButton.addEventListener("click", () => {
+          if (!capturedImage) {
+            return;
+          }
+
+          const downloadLink = document.createElement("a");
+
+          downloadLink.href = capturedImage;
+
+          downloadLink.download = "prismcam-snapshot.png";
+
+          document.body.appendChild(downloadLink);
+
+          downloadLink.click();
+
+          document.body.removeChild(downloadLink);
+        });
+
+        /* START WEBCAM */
+
+        function startWebcam() {
+          navigator.mediaDevices
+            .getUserMedia({
+              video: true,
+            })
+
+            .then((stream) => {
+              const video = document.createElement("video");
+
+              video.srcObject = stream;
+
+              video.setAttribute("playsinline", true);
+
+              video.play();
+
+              video.addEventListener("loadedmetadata", () => {
+                canvas.width = video.videoWidth;
+
+                canvas.height = video.videoHeight;
+
+                drawToCanvas(video);
+              });
+            })
+
+            .catch((error) => {
+              alert(
+                "Webcam access is blocked or unavailable: " + error.message,
+              );
+            });
+        }
+
+        /* DRAW LIVE VIDEO */
+
+        function drawToCanvas(video) {
+          ctx.filter = currentFilterStyle;
+
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          requestAnimationFrame(() => {
+            drawToCanvas(video);
+          });
+        }
+
+        startWebcam();
+      });
+    </script>
+    ```
+  </body>
+</html>
